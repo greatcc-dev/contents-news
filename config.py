@@ -21,6 +21,10 @@ RSS_FEEDS = [
     "https://www.bloter.net/?feed=rss2",                # 블로터 (테크/플랫폼)
     "https://techneedle.com/feed",                      # 테크니들 (글로벌 테크 한국어)
     "https://www.mobiinside.co.kr/feed",                # 모비인사이드 (마케팅/크리에이터)
+    # 일본어 소스
+    "https://ascii.jp/rss.xml",                         # ASCII.jp (테크/유튜버 트렌드)
+    "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", # ITmedia (테크/미디어)
+    "https://digimaga.net/feed",                        # デジマガ (디지털 마케팅)
 ]
 
 # ─── NewsAPI 검색 키워드 (크리에이터 비즈니스/산업 중심) ─────────────────────
