@@ -64,7 +64,7 @@ def _create_container(text: str, reply_to_id: str = None) -> str | None:
 def _publish_container(creation_id: str) -> str | None:
     """컨테이너를 실제 게시. 게시된 post_id 반환."""
     resp = requests.post(
-        f"{THREADS_API_BASE}/{THREADS_USER_ID}/threads/publish",
+        f"{THREADS_API_BASE}/{THREADS_USER_ID}/threads_publish",
         params={
             "creation_id": creation_id,
             "access_token": THREADS_ACCESS_TOKEN,
