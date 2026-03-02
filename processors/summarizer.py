@@ -43,7 +43,7 @@ def summarize(items: list[dict]) -> str:
 3. 실용 인사이트 (2~3문장): 이걸 읽는 사람이 지금 당장 어떻게 활용하거나 대비할 수 있는지. 뜬구름 잡는 말 금지, 구체적으로.
 
 [작성 규칙]
-- 전체 450자 이내 (한국어) - Threads API 500자 제한 엄수, 반드시 지킬 것
+- 전체 800~1200자 (한국어) - 500자 초과 시 자동으로 쓰레드 분할 게시됨
 - 이모지 절대 사용 금지
 - 해시태그 없음, URL 없음
 - bullet 없이 문단으로
@@ -59,8 +59,4 @@ def summarize(items: list[dict]) -> str:
         messages=[{"role": "user", "content": prompt}],
     )
 
-    text = message.content[0].text.strip()
-    # Threads API 500자 제한 안전장치
-    if len(text) > 490:
-        text = text[:490].rsplit(".", 1)[0] + "."
-    return text
+    return message.content[0].text.strip()
