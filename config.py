@@ -10,11 +10,17 @@ YOUTUBE_API_KEY    = os.environ.get("YOUTUBE_API_KEY", "")
 
 # ─── RSS 피드 목록 (크리에이터 비즈니스 특화) ───────────────────────────────
 RSS_FEEDS = [
+    # 영어 소스
     "https://www.tubefilter.com/feed/",           # YouTube 전문 미디어
     "https://blog.youtube/rss/",                  # YouTube 공식 블로그 (정책/기능 업데이트)
     "https://www.socialmediatoday.com/rss/",      # 소셜미디어 플랫폼 트렌드
     "https://www.theverge.com/rss/index.xml",     # 테크/플랫폼 뉴스
     "https://digiday.com/feed/",                  # 크리에이터 이코노미 비즈니스
+    # 한국어 소스
+    "https://www.mediatoday.co.kr/rss/allArticle.xml",  # 미디어오늘 (미디어 산업)
+    "https://www.bloter.net/?feed=rss2",                # 블로터 (테크/플랫폼)
+    "https://techneedle.com/feed",                      # 테크니들 (글로벌 테크 한국어)
+    "https://www.mobiinside.co.kr/feed",                # 모비인사이드 (마케팅/크리에이터)
 ]
 
 # ─── NewsAPI 검색 키워드 (크리에이터 비즈니스/산업 중심) ─────────────────────
