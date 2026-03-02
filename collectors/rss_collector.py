@@ -15,13 +15,14 @@ def collect() -> list[dict]:
     for feed_url in RSS_FEEDS:
         try:
             feed = feedparser.parse(feed_url)
-            for entry in feed.entries[:RSS_MAX_ITEMS]:
+            feed_count = 0
+            for entry in feed.entries[:3]:  # 피드당 최대 3개
                 # 날짜 파싱
                 published = None
                 if hasattr(entry, "published_parsed") and entry.published_parsed:
                     published = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
 
-                # 최근 7시간 이내 기사만
+                # 기간 이내 기사만
                 if published and published < cutoff:
                     continue
 
@@ -38,9 +39,7 @@ def collect() -> list[dict]:
                     "source": feed.feed.get("title", feed_url),
                     "type": "rss",
                 })
-
-                if len(items) >= RSS_MAX_ITEMS * 2:
-                    break
+                feed_count += 1
 
         except Exception as e:
             print(f"[RSS] {feed_url} 수집 실패: {e}")
