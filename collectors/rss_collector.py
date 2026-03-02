@@ -10,7 +10,7 @@ def collect() -> list[dict]:
     Returns: [{"title": str, "url": str, "summary": str, "source": str}]
     """
     items = []
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=7)  # 최근 7시간
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=48)  # 최근 48시간
 
     for feed_url in RSS_FEEDS:
         try:

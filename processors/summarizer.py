@@ -53,6 +53,7 @@ def summarize(items: list[dict]) -> str:
     message = client.messages.create(
         model=CLAUDE_MODEL,
         max_tokens=CLAUDE_MAX_TOKENS,
+        temperature=1.0,
         messages=[{"role": "user", "content": prompt}],
     )
 
