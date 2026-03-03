@@ -70,6 +70,7 @@ def main():
         result = threads_publisher.publish(post_text)
         if result["success"]:
             print(f"[완료] 게시 성공! post_id={result['post_id']}")
+            summarizer.save_last_topics(post_text)
         else:
             print(f"[실패] {result['error']}")
             sys.exit(1)

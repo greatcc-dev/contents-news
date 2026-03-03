@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout 코드
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Python 설정
         uses: actions/setup-python@v5
@@ -31,6 +33,11 @@ jobs:
 
       - name: 의존성 설치
         run: pip install -r requirements.txt
+
+      - name: Git 설정 (상태 저장용)
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
 
       - name: 인사이트 수집 및 게시
         env:
@@ -45,3 +52,10 @@ jobs:
           else
             python main.py
           fi
+
+      - name: 게시 상태 저장
+        if: success() && github.event.inputs.dry_run != 'true'
+        run: |
+          git add state/
+          git diff --staged --quiet || git commit -m "chore: post state [skip ci]"
+          git push

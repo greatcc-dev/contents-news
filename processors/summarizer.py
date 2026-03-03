@@ -1,6 +1,30 @@
 # processors/summarizer.py - Claude API로 인사이트 포스트 생성
+import os
 import anthropic
+from datetime import datetime, timezone
 from config import CLAUDE_API_KEY, CLAUDE_MODEL, CLAUDE_MAX_TOKENS
+
+STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "state", "last_topics.txt")
+
+
+def _get_time_slot() -> str:
+    """UTC 0시 = KST 9시(오전), UTC 9시 = KST 18시(저녁)"""
+    return "morning" if datetime.now(timezone.utc).hour < 9 else "evening"
+
+
+def _load_last_topics() -> str:
+    try:
+        with open(STATE_FILE, encoding="utf-8") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return ""
+
+
+def save_last_topics(text: str):
+    """게시 성공 후 호출 - 다음 실행의 중복 방지에 사용"""
+    os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        f.write(text[:400])
 
 
 def build_context(items: list[dict]) -> str:
@@ -30,9 +54,33 @@ def summarize(items: list[dict]) -> str:
     client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
     context = build_context(items)
 
+    time_slot = _get_time_slot()
+    last_topics = _load_last_topics()
+
+    if time_slot == "morning":
+        slot_guide = (
+            "오전 발행 포스트입니다. 독자가 하루를 시작하며 "
+            "\"오늘 이것만 알면 된다\"고 느낄 최신 트렌드나 새로운 변화에 집중하세요. "
+            "후킹은 오늘 눈 뜨자마자 들어야 할 정보처럼 긴박하게."
+        )
+    else:
+        slot_guide = (
+            "저녁 발행 포스트입니다. 독자가 하루를 마치며 "
+            "\"내일 바로 써먹어야겠다\"고 느낄 실전 인사이트나 행동 지침에 집중하세요. "
+            "후킹은 하루를 돌아보며 한 가지 사실이 달리 보이게 만드는 관점으로."
+        )
+
+    avoid_block = ""
+    if last_topics:
+        avoid_block = (
+            f"\n\n[이전 포스트 내용 요약 - 같은 주제·논점·사례는 반드시 피할 것]\n{last_topics}"
+        )
+
     prompt = f"""당신은 유튜브와 크리에이터 이코노미를 수년간 직접 경험하고 관찰해온 사람입니다.
 크리에이터를 막 시작하려는 사람이나 크리에이터 관련 사업을 하는 사람들이 당신의 글을 읽습니다.
 아래 최신 콘텐츠를 참고해서 쓰레드(Threads)에 올릴 사설을 써주세요.
+
+{slot_guide}{avoid_block}
 
 [참고 콘텐츠]
 {context}

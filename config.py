@@ -48,7 +48,7 @@ NEWS_MAX_ITEMS = 3      # NewsAPI에서 가져올 최대 기사 수
 
 # ─── Claude 설정 ─────────────────────────────────────────────────────────────
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"   # 빠르고 저렴
-CLAUDE_MAX_TOKENS = 1000
+CLAUDE_MAX_TOKENS = 1500
 
 # ─── Threads API ─────────────────────────────────────────────────────────────
 THREADS_API_BASE = "https://graph.threads.net/v1.0"
