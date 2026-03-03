@@ -5,6 +5,41 @@ from datetime import datetime, timezone
 from config import CLAUDE_API_KEY, CLAUDE_MODEL, CLAUDE_MAX_TOKENS
 
 STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "state", "last_topics.txt")
+CATEGORY_FILE = os.path.join(os.path.dirname(__file__), "..", "state", "last_category.txt")
+
+# 6개 카테고리를 순환하여 매 포스트마다 다른 주제를 강제 지정
+CATEGORIES = [
+    (
+        "platform",
+        "플랫폼 정책·알고리즘·수익화 변화\n"
+        "  (YouTube·Shorts·TikTok·Threads 등의 최신 정책, 알고리즘 업데이트, 수익 분배 변화)"
+    ),
+    (
+        "production",
+        "영상 제작·편집·후반작업 기법이나 트렌드\n"
+        "  (촬영 방식, 편집 소프트웨어, 색보정, 사운드, 워크플로우 혁신 등)"
+    ),
+    (
+        "gear",
+        "카메라·촬영 장비·신규 기기 소식\n"
+        "  (신제품 카메라, 렌즈, 드론, 조명, 마이크, 짐벌 등 크리에이터가 주목할 하드웨어)"
+    ),
+    (
+        "ai",
+        "AI가 영상 제작이나 크리에이터 업무를 바꾸는 흐름\n"
+        "  (AI 편집 도구, AI 보이스·번역, AI 썸네일·스크립트 생성, AI 카메라 기능 등)"
+    ),
+    (
+        "creator",
+        "유명 크리에이터의 동향·전략·성공 사례\n"
+        "  (배울 점과 인사이트 위주, 공격적이거나 가십성 내용 없이)"
+    ),
+    (
+        "business",
+        "크리에이터 비즈니스·이코노미 트렌드\n"
+        "  (수익 구조, 브랜드 딜, 구독 경제, 크리에이터 펀드, 멀티채널 전략 등)"
+    ),
+]
 
 
 def _get_time_slot() -> str:
@@ -20,11 +55,26 @@ def _load_last_topics() -> str:
         return ""
 
 
+def _load_last_category_index() -> int:
+    try:
+        with open(CATEGORY_FILE, encoding="utf-8") as f:
+            return int(f.read().strip())
+    except (FileNotFoundError, ValueError):
+        return -1
+
+
 def save_last_topics(text: str):
     """게시 성공 후 호출 - 다음 실행의 중복 방지에 사용"""
     os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         f.write(text[:400])
+
+
+def save_last_category(index: int):
+    """게시 성공 후 호출 - 다음 실행의 카테고리 순환에 사용"""
+    os.makedirs(os.path.dirname(CATEGORY_FILE), exist_ok=True)
+    with open(CATEGORY_FILE, "w", encoding="utf-8") as f:
+        f.write(str(index))
 
 
 def build_context(items: list[dict]) -> str:
@@ -40,13 +90,13 @@ def build_context(items: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def summarize(items: list[dict]) -> str:
+def summarize(items: list[dict]) -> tuple[str, int]:
     """
     수집된 콘텐츠 → 쓰레드 포스트 생성
-    Returns: 완성된 포스트 텍스트 (500자 내외)
+    Returns: (완성된 포스트 텍스트, 사용된 카테고리 인덱스)
     """
     if not items:
-        return ""
+        return "", -1
 
     if not CLAUDE_API_KEY:
         raise ValueError("CLAUDE_API_KEY가 설정되지 않았습니다.")
@@ -56,6 +106,11 @@ def summarize(items: list[dict]) -> str:
 
     time_slot = _get_time_slot()
     last_topics = _load_last_topics()
+
+    # 카테고리 순환: 마지막 인덱스 다음 카테고리 선택
+    last_index = _load_last_category_index()
+    current_index = (last_index + 1) % len(CATEGORIES)
+    category_key, category_desc = CATEGORIES[current_index]
 
     if time_slot == "morning":
         slot_guide = (
@@ -83,16 +138,12 @@ def summarize(items: list[dict]) -> str:
 
 {slot_guide}{avoid_block}
 
+[이번 포스트 주제 카테고리 - 반드시 이 카테고리 안에서만 작성할 것]
+{category_desc}
+위 카테고리에 맞는 참고 콘텐츠를 골라 활용하세요. 해당 소재가 부족하면 이 카테고리에 대한 당신의 인사이트로 보완하세요.
+
 [참고 콘텐츠]
 {context}
-
-[다룰 수 있는 주제 - 참고 콘텐츠 중 가장 흥미롭고 유익한 것 하나를 골라 깊게]
-- 영상 제작·편집·후반작업 기법이나 트렌드
-- 카메라·촬영 장비·신규 기기 소식
-- AI가 영상 제작이나 크리에이터 업무를 바꾸는 흐름
-- 유명 크리에이터의 동향이나 전략 (유익한 관점에서, 공격적 내용 제외)
-- 플랫폼 정책·수익화·알고리즘 변화
-- 크리에이터 비즈니스·이코노미 트렌드
 
 [글 구조 - 반드시 이 순서로]
 1. 후킹 (2~3문장): 독자가 "어, 이게 무슨 말이지?" 하고 멈추게 만드는 문장. 질문이나 반전, 역설적 사실로 시작. 뉴스 요약 금지.
@@ -116,4 +167,4 @@ def summarize(items: list[dict]) -> str:
         messages=[{"role": "user", "content": prompt}],
     )
 
-    return message.content[0].text.strip()
+    return message.content[0].text.strip(), current_index

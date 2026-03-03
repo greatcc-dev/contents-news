@@ -50,7 +50,9 @@ def main():
     # 2. Claude API로 인사이트 포스트 생성
     print("\n[요약] Claude API로 인사이트 포스트 생성 중...")
     try:
-        post_text = summarizer.summarize(items)
+        post_text, category_index = summarizer.summarize(items)
+        category_name = summarizer.CATEGORIES[category_index][0] if category_index >= 0 else "unknown"
+        print(f"[요약] 카테고리: {category_name} (#{category_index + 1}/6)")
     except Exception as e:
         print(f"[요약] 실패: {e}")
         sys.exit(1)
@@ -71,6 +73,7 @@ def main():
         if result["success"]:
             print(f"[완료] 게시 성공! post_id={result['post_id']}")
             summarizer.save_last_topics(post_text)
+            summarizer.save_last_category(category_index)
         else:
             print(f"[실패] {result['error']}")
             sys.exit(1)
