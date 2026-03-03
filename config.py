@@ -35,6 +35,8 @@ RSS_FEEDS = [
     "https://ascii.jp/rss.xml",                         # ASCII.jp (테크/유튜버 트렌드)
     "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", # ITmedia (테크/미디어)
     "https://digimaga.net/feed",                        # デジマガ (디지털 마케팅)
+    # 참고 YouTube 채널 (크리에이터/비즈니스)
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCctXZhXmG-kf3tlIXgVZUlw",  # GaryVee
 ]
 
 # ─── NewsAPI 검색 키워드 (크리에이터 비즈니스 + 영상제작/장비/AI) ─────────────
