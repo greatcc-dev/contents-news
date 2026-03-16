@@ -35,8 +35,17 @@ RSS_FEEDS = [
     "https://ascii.jp/rss.xml",                         # ASCII.jp (테크/유튜버 트렌드)
     "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", # ITmedia (테크/미디어)
     "https://digimaga.net/feed",                        # デジマガ (디지털 마케팅)
-    # 참고 YouTube 채널 (크리에이터/비즈니스)
+    # 크리에이터 세무/재무 정보
+    "https://www.nts.go.kr/nts/na/ntt/selectNttList.do?mi=2201&nttSn=1",  # 국세청 공지
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UC4kJ20aBMRJjJIgBicKchXQ",  # 자영업의 모든것 (세무)
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCWzfGKEyxuPFHKrFph3sFIA",  # 택스코디 (크리에이터 세무)
+    # 유명 크리에이터 채널 (전략/인사이트 참고)
     "https://www.youtube.com/feeds/videos.xml?channel_id=UCctXZhXmG-kf3tlIXgVZUlw",  # GaryVee
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCX6OQ3DkcsbYNE6H8uQQuVA",  # MrBeast
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCBcRF18a7Qf58cCRy5xuWwQ",  # MKBHD
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UC3SEvBYFfPkR9V4nEMSwz3A",  # 주언규
+    # 크리에이터 이코노미 뉴스
+    "https://www.passionfroot.me/blog/rss.xml",    # Passionfroot (크리에이터 이코노미)
 ]
 
 # ─── NewsAPI 검색 키워드 (크리에이터 비즈니스 + 영상제작/장비/AI) ─────────────
@@ -49,6 +58,8 @@ NEWS_KEYWORDS = [
     "AI content creation tools",
     "camera gear filmmaker",
     "content creator tools",
+    "creator tax freelance",
+    "MrBeast creator strategy",
 ]
 
 # ─── YouTube Data API 설정 ───────────────────────────────────────────────────

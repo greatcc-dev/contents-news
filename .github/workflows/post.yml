@@ -2,8 +2,9 @@ name: YouTube Insights → Threads
 
 on:
   schedule:
-    # KST 기준 (UTC +9) — 하루 1회 오전 발행
+    # KST 기준 (UTC +9) — 하루 2회 발행
     - cron: '0 0 * * *'    # KST 09:00
+    - cron: '0 9 * * *'    # KST 18:00
 
   # 수동 실행 (GitHub Actions 탭에서 [Run workflow] 버튼으로 테스트 가능)
   workflow_dispatch:
