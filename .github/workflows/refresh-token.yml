@@ -1,0 +1,36 @@
+name: Threads 토큰 자동 갱신
+
+# Threads 장기 액세스 토큰은 60일 만료.
+# 매주 갱신해서 만료 60일 카운터를 계속 리셋한다.
+on:
+  schedule:
+    - cron: '0 0 * * 0'   # 매주 일요일 KST 09:00
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 토큰 갱신 및 시크릿 업데이트
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          RESPONSE=$(curl -s "https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=${THREADS_ACCESS_TOKEN}")
+
+          NEW_TOKEN=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token', ''))")
+          EXPIRES=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin).get('expires_in', '?'))")
+
+          if [ -z "$NEW_TOKEN" ]; then
+            echo "::error::토큰 갱신 실패. 응답: $RESPONSE"
+            exit 1
+          fi
+
+          # 로그에 토큰이 노출되지 않도록 마스킹
+          echo "::add-mask::$NEW_TOKEN"
+          echo "토큰 갱신 성공. 유효기간(초): $EXPIRES"
+
+          gh secret set THREADS_ACCESS_TOKEN \
+            --repo greatcc-dev/contents-news \
+            --body "$NEW_TOKEN"
+          echo "THREADS_ACCESS_TOKEN 시크릿 업데이트 완료."
